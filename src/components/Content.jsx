@@ -80,7 +80,6 @@ const Content = () => {
     const onGroup = () => {
         setGroup(!group)
     }
-    console.log(tags)
     return (
         <div>
             <header className={'header'}>
