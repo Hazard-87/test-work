@@ -1,7 +1,9 @@
 import React, {useState} from 'react';
-
-import {Button} from 'react-bootstrap';
 import axios from 'axios';
+
+import Header from "./components/Header";
+import Content from "./components/Content";
+import ContentGroup from "./components/ContentGroup";
 
 function App() {
     const API_KEY = 'gTJAO48YcpmrADUyo4opy4ES4g7iDBxx';
@@ -12,6 +14,7 @@ function App() {
     const [loading, setLoading] = useState(false);
     const [group, setGroup] = useState(false);
 
+
     let arr = [];
 
     const fetchImage = async (i) => {
@@ -19,7 +22,6 @@ function App() {
             .toString(36)
             .replace(/[^a-z]+/g, '')
             .substr(0, 10);
-        console.log(text[i]);
         let response = await axios.get(
             `https://api.giphy.com/v1/gifs/random?api_key=${API_KEY}&tag=${
                 text[i] === 'delay' ? randomText : text[i]
@@ -53,7 +55,7 @@ function App() {
                     setTimeout(() => fetchImage(0), delay * i);
                     i++;
                 }
-            } else if (text) {
+            } else if (text.length) {
                 setLoading(true);
                 for (let i = 0; i < text.length; i++) {
                     fetchImage(i);
@@ -84,7 +86,8 @@ function App() {
     };
 
     const clearImages = () => {
-        setText('');
+        setText([]);
+        setInputText('')
         setImages([]);
         setTags([]);
         setGroup(false);
@@ -98,63 +101,26 @@ function App() {
         <div className={'app'}>
             <div className={'container'}>
                 <div className={'wrapper'}>
-                    <header className={'header'}>
-                        <input
-                            className={'Header__item'}
-                            onChange={onChange}
-                            value={inputText}
-                            type="text"
-                            placeholder={'введите тег'}
-                        />
-                        {loading ? (
-                            <Button className={'header__item'} disabled variant="success">
-                                Загрузка...
-                            </Button>
-                        ) : (
-                            <Button className={'header__item'} onClick={loadImages} variant="success">
-                                Загрузить
-                            </Button>
-                        )}
-                        <Button className={'header__item'} onClick={clearImages} variant="danger">
-                            Очистить
-                        </Button>
-                        {!group ? (
-                            <Button className={'header__item'} onClick={onGroup} variant="primary">
-                                Группировать
-                            </Button>
-                        ) : (
-                            <Button className={'header__item'} onClick={onGroup} variant="primary">
-                                Разгуппировать
-                            </Button>
-                        )}
-                    </header>
+                    < Header
+                        inputText={inputText}
+                        loading={loading}
+                        onGroup={onGroup}
+                        clearImages={clearImages}
+                        onChange={onChange}
+                        loadImages={loadImages}
+                    />
 
                     <div>
                         {group ? (
-                            <div>
-                                {tags.map((tag, index) => (
-                                    <div className='content' key={index}>
-                                        <p className='content__tag'>{tag}</p>
-                                        {images
-                                            .filter((img) => img.categories === tag)
-                                            .map((i, index) => (
-                                                <img className='content__img' key={index} alt="image" src={i.url}/>
-                                            ))}
-                                    </div>
-                                ))}
-                            </div>
+                            < ContentGroup
+                                images={images}
+                                tags={tags}
+                                setInputText={setInputText}
+                            />
                         ) : (
-                            <div className='content'>
-                                {images.map((image, index) => (
-                                    <img
-                                        className='content__img'
-                                        alt={'photo'}
-                                        onClick={() => setInputText(image.categories)}
-                                        key={index}
-                                        src={image.url}
-                                    />
-                                ))}
-                            </div>
+                            < Content
+                                images={images}
+                                setInputText={setInputText}/>
                         )}
                     </div>
                 </div>
